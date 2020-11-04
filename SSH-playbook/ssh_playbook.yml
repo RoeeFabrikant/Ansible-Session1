@@ -4,7 +4,7 @@
   remote_user: ubuntu
   become: yes
   vars:
-    user_name: mark
+    user_name: roee
     user_password: 111111
   tasks:
 
@@ -21,7 +21,7 @@
   remote_user: ubuntu
   become: yes
   vars:
-    user_name: mark
+    user_name: roee
     user_password: 111111
     
   tasks:
