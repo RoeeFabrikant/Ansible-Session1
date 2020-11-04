@@ -1,0 +1,45 @@
+---
+
+- name: Docker setup
+  hosts: nodes
+  remote_user: ubuntu
+  become: yes
+  tasks:
+
+    - name:  Run apt update and Install required packages
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'gnupg-agent', 'software-properties-common']
+        state: present
+        update_cache: yes
+
+    - name: Add Docker official GPG
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+    
+    - name: Install Docker Engine
+      apt:
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+        state: latest
+        update_cache: yes
+      notify: restart docker
+
+    - name: create user dockerman and append to docker group
+      user:
+        name: dockerman
+        group: docker
+        append: yes
+
+    - name: Execute shell
+      shell: docker run -d -p 8080:80 nginx
+
+  handlers:
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
