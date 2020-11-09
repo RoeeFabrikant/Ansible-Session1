@@ -1,37 +1,30 @@
 ---
-- name: Create new user and generate a Keypair
+- name: Generate a new keypair at localhost
   hosts: localhost
-  remote_user: ubuntu
+  become: yes
+  tasks:
+  
+    - name: Create new keypair
+      openssh_keypair:
+        owner: ubuntu
+        group: admin
+        path: /home/ubuntu/.ssh/id_rsa
+
+- name: Create user on nodes and copy the keypair to authorized_key file
+  hosts: nodes
   become: yes
   vars:
-    user_name: roee
-    user_password: 111111
+    user_name: roeef  
   tasks:
 
-    - name: Create a new user with ssh key
+    - name: Create a new user on nodes
       user:
-       name: "{{ user_name }}"
-       password: "{{ '{{ user_password }}' | password_hash('sha512', '{{ user_name }}') }}"
-       generate_ssh_key: yes
+        name: "{{ user_name }}"
+        group: admin
+        shell: /bin/bash
 
-
-
-- name: Create user on nodes
-  hosts:  nodes
-  remote_user: ubuntu
-  become: yes
-  vars:
-    user_name: roee
-    user_password: 111111
-    
-  tasks:
-    - name: Create a new user on nodes with ssh key
-      user:
-       name: "{{ user_name }}"
-       password: "{{ '{{ user_password }}' | password_hash('sha512', '{{ user_name }}') }}"
-
-    - name: 
+    - name: copy the keypair to authorized_key file
       authorized_key:
         user: "{{ user_name }}"
-        key: "{{ lookup('file', '/home/{{ user_name }}/.ssh/id_rsa.pub') }}"
+        key: "{{ lookup('file', '/home/ubuntu/.ssh/id_rsa.pub') }}"
         state: present
