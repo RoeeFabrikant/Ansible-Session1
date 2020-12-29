@@ -1,0 +1,6 @@
+stage("test"){
+  echo "success!"
+  echo "yehhhhh!!!!"
+  echo "yehhhhhooooooooooo!!!!"
+}
+  
